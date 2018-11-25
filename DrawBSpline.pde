@@ -10,7 +10,7 @@ Boolean ifDrawNewCurve = false;
 Boolean ifShowControlPolygon = true;
 
 void setup() {
-  size(1800, 1600);
+  size(1400, 800);
   
   controlPoints = new ArrayList<PVector>();
   
@@ -96,7 +96,7 @@ void mouseClicked() {
 }
 
 void mouseDragged() {
-  if (controlPoints.size() >= pointsNum) 
+  if (ifDrawBSpline == true)
     for (PVector p : controlPoints) 
       if (checkIfDragged(p)) {
         p.x = mouseX;
