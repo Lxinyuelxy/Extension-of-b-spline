@@ -1,9 +1,8 @@
 ArrayList<PVector> controlPoints;
-ArrayList<Float> knots1;
-ArrayList<Float> knots2;
 int pointsNum = 8;
 int degree = 3;
 BSpline b;
+BSpline b1;
 BSpline newCurve;
 Boolean ifDrawBSpline = false;
 Boolean ifDrawNewCurve = false;
@@ -11,33 +10,42 @@ Boolean ifShowControlPolygon = true;
 
 void setup() {
   size(1400, 800);
-  
   controlPoints = new ArrayList<PVector>();
-  
-  // unclamped
-  knots1 = new ArrayList<Float>();
-  for (float i = 0; i <= pointsNum+degree+1-1; i++) {
-    knots1.add(i*0.1);
-  }
-  //clamped
-  knots2 = new ArrayList<Float>();
-  for (float i = 0; i <= pointsNum+degree+1-1; i++) {
-    if(i < degree+1) knots2.add(0.0);
-    else if (i < pointsNum) knots2.add(i*0.1);
-    else knots2.add(1.0);
-  }
 }
+
+ArrayList<Float> generatesUnclampedKnots(int pointsNum, int degree) {
+  ArrayList<Float> knots = new ArrayList<Float>();
+  for (float i = 0; i <= pointsNum+degree+1-1; i++) {
+    knots.add(i*0.1);
+  }
+  return knots;
+}
+
+ArrayList<Float> generatesClampedKnots(int pointsNum, int degree) {
+  ArrayList<Float> knots = new ArrayList<Float>();
+  for (float i = 0; i <= pointsNum+degree+1-1; i++) {
+    if(i < degree+1) knots.add(0.0);
+    else if (i < pointsNum) knots.add(i*0.1);
+    else knots.add(1.0);
+  }
+  return knots;
+}
+
 
 void draw() {
   background(255);
   if (ifShowControlPolygon) {
-    drawControlPolygon();
+    drawControlPolygon(controlPoints, color(255, 0, 0));
   }
   if (ifDrawNewCurve == true) {
     drawSpline(newCurve, color(0,255,0));
+    drawControlPolygon(newCurve.controlPoints, color(0, 255, 0));
+    
+    drawSpline(b1, color(0,0,255));
+    drawControlPolygon(b1.controlPoints, color(0, 0, 255));
   }
   if (ifDrawBSpline == true) {
-    drawSpline(b, color(255,0,0));
+    drawSpline(b, color(255,0,0));    //<>//
   }
   
 }
@@ -55,10 +63,11 @@ void drawSpline(BSpline spline, color c) {
   popStyle();
 }
 
-void drawControlPolygon() {
+void drawControlPolygon(ArrayList<PVector> points, color c) {
   noFill();
   beginShape();
-  for (PVector p: controlPoints) {
+  stroke(c);
+  for (PVector p: points) {
     pushStyle();
     if (checkIfDragged(p)) {
       fill(color(255, 0, 0));
@@ -84,14 +93,23 @@ void mouseClicked() {
   if (controlPoints.size() < pointsNum) {
     controlPoints.add(new PVector(mouseX, mouseY));
     if (controlPoints.size() == pointsNum) {
-      b = new BSpline(controlPoints, degree, knots2); 
+      b = new BSpline(controlPoints, degree, generatesClampedKnots(pointsNum, degree)); 
+      
       ifDrawBSpline = true;
     } 
   }
   else {
-    Extension ext = new Extension(b, new PVector(mouseX, mouseY));
+    PVector newp = new PVector(mouseX, mouseY);
+    Extension ext = new Extension(b, newp);
     newCurve = ext.getNewCurve();
     ifDrawNewCurve = true;
+    
+    ArrayList<PVector> points = new ArrayList<PVector>();
+    for(PVector p : controlPoints) {
+      points.add(p.copy());
+    }
+    points.add(newp);
+    b1 = new BSpline(points, degree, generatesClampedKnots(pointsNum+1, degree)); 
   }
 }
 

@@ -50,7 +50,7 @@ class Extension {
     int n = originCur.controlPoints.size()-1;
     int p = originCur.degree;
     for(int j = 0; j <= n-p; j++) {
-      this.controlPoints_new.add(controlPoints_origin.get(j));
+      this.controlPoints_new.add(controlPoints_origin.get(j).copy());
     }
     for(int j = n-p+1; j <= n; j++) {
       this.controlPoints_new.add(_unclampCtrlP(originCur, u, n, p, j, p-2));
