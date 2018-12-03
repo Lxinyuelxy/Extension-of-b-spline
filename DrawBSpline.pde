@@ -1,5 +1,5 @@
-ArrayList<PVector> controlPoints;
-int pointsNum = 8;
+ ArrayList<PVector> controlPoints;
+int pointsNum = 5;
 int degree = 3;
 BSpline b;
 BSpline b1;

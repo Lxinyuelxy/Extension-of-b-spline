@@ -61,4 +61,16 @@ class BSpline {
     }
     return V[i];
   }
+  
+  float basisFunc(float t, int i, int degree) {
+    if (degree == 0) {
+      if (this.knots.get(i) >= t && t <= this.knots.get(i+1)) return 1;
+      else return 0;
+    }
+    else {
+      float temp1 = (t - this.knots.get(i)) / (this.knots.get(i+degree) - this.knots.get(i));
+      float temp2 = (this.knots.get(i+degree+1) - t) / (this.knots.get(i+degree+1) - this.knots.get(i+1));
+      return temp1*basisFunc(t, i, degree-1) + temp2*basisFunc(t, i+1, degree-1);
+    }
+  }
 }
