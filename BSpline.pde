@@ -21,7 +21,7 @@ class BSpline {
   BSpline (ArrayList<PVector> controlPoints, int degree, ArrayList<Float> knots, ArrayList<Float> weights) {  
   }
   
-  ArrayList<PVector> getBsplineCurve() {
+  ArrayList<PVector> getBsplineCurve_deBoorCox() {
     
     ArrayList<PVector> points = new ArrayList<PVector>();
     
@@ -35,7 +35,6 @@ class BSpline {
       PVector p = deBoorCox(t, j);
       points.add(p);
     }
-    
     return points;
   }
   
@@ -62,15 +61,48 @@ class BSpline {
     return V[i];
   }
   
-  float basisFunc(float t, int i, int degree) {
+  ArrayList<PVector> getBsplineCurve_bSplineExpression() {
+    
+    ArrayList<PVector> points = new ArrayList<PVector>();
+    
+    float low = this.knots.get(this.degree);
+    float high = this.knots.get(this.n);
+    float deltat = (high - low) / 200.0;
+    
+    for (float t = low; t <= high; t += deltat) {
+      PVector p = BSplineExpression(t);
+      points.add(p);
+    }
+    return points;
+  }
+  
+  PVector BSplineExpression(float t) {
+    PVector res = new PVector();
+    for(int i = 0; i < n; i++) {
+      PVector p = this.controlPoints.get(i).copy();
+      res = PVector.add(res, PVector.mult(p, basisFunc(i, this.degree, t)));
+    }
+    return res;
+  }
+  
+  float basisFunc(int i, int degree, float t) {
     if (degree == 0) {
-      if (this.knots.get(i) >= t && t <= this.knots.get(i+1)) return 1;
+      if (t >= this.knots.get(i) && t < this.knots.get(i+1)) return 1;
       else return 0;
     }
     else {
-      float temp1 = (t - this.knots.get(i)) / (this.knots.get(i+degree) - this.knots.get(i));
-      float temp2 = (this.knots.get(i+degree+1) - t) / (this.knots.get(i+degree+1) - this.knots.get(i+1));
-      return temp1*basisFunc(t, i, degree-1) + temp2*basisFunc(t, i+1, degree-1);
+      float temp1;
+      if ((this.knots.get(i+degree) - this.knots.get(i)) == 0) 
+        temp1 = 0.0;
+      else
+        temp1 = (t - this.knots.get(i)) / (this.knots.get(i+degree) - this.knots.get(i));
+        
+      float temp2;
+      if ((this.knots.get(i+degree+1) - this.knots.get(i+1)) == 0)
+        temp2 = 0.0;
+      else
+        temp2 = (this.knots.get(i+degree+1) - t) / (this.knots.get(i+degree+1) - this.knots.get(i+1));
+      return temp1*basisFunc(i, degree-1, t) + temp2*basisFunc(i+1, degree-1, t);
     }
   }
 }

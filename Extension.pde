@@ -1,14 +1,42 @@
 class Extension {
-  ArrayList<PVector> controlPoints_new;
-  ArrayList<Float> knots_new;
+  ArrayList<PVector> controlPoints_new1;
+  ArrayList<PVector> controlPoints_new2;
+  ArrayList<Float> knots_new1;
+  ArrayList<Float> knots_new2;
   
-  Extension(BSpline originCur, PVector goal) {
+  Extension(BSpline originCur, PVector goal) {  
+    this.controlPoints_new1 = new ArrayList<PVector>();
+    this.controlPoints_new2= new ArrayList<PVector>();
+    this.knots_new1 = new ArrayList<Float>();
+    this.knots_new2 = new ArrayList<Float>();
+    
+    float t1 = calcT1(originCur, goal);
+    float t2 = calcT2(originCur, goal);
+    
+    _unclampingCurve1(originCur, t1);
+    controlPoints_new1.add(goal);
+    
+    _unclampingCurve2(originCur, t2);
+    controlPoints_new2.add(goal);
+    
+    for (int i = 0; i < controlPoints_new1.size(); i++) {
+      knots_new1.add(originCur.knots.get(i));
+      knots_new2.add(originCur.knots.get(i));
+    }
+    for (int i = controlPoints_new1.size(); i < controlPoints_new1.size()+originCur.degree+1; i++) {
+      knots_new1.add(t1);
+      knots_new2.add(t2);
+    }
+
+    for (int i = 0; i < knots_new1.size(); i++) {
+      knots_new1.set(i, knots_new1.get(i)/t1);
+      knots_new2.set(i, knots_new2.get(i)/t2);
+    }
+  }
+  
+  float calcT1(BSpline originCur, PVector goal) {
+    int cpn_origin = originCur.n;
     ArrayList<PVector> controlPoints_origin = originCur.controlPoints;
-    int cpn_origin = controlPoints_origin.size();
-    
-    this.controlPoints_new = new ArrayList<PVector>();
-    this.knots_new = new ArrayList<Float>();
-    
     float _predis = 0.0;
     for(int i = 0; i < cpn_origin-1; i++) {
       float x1 = controlPoints_origin.get(i).x;
@@ -20,23 +48,26 @@ class Extension {
     float x = controlPoints_origin.get(cpn_origin-1).x;
     float y = controlPoints_origin.get(cpn_origin-1).y;
     float t1 = 1 + dist(goal.x, goal.y, x, y) / _predis;
-    
-    _unclampingCurve(originCur, t1);
-    controlPoints_new.add(goal);
-    
-    for (int i = 0; i < controlPoints_new.size(); i++) {
-      knots_new.add(originCur.knots.get(i));
-    }
-    for (int i = controlPoints_new.size(); i < controlPoints_new.size()+originCur.degree+1; i++) {
-      knots_new.add(t1);
-    }
-
-    for (int i = 0; i < knots_new.size(); i++) {
-      knots_new.set(i, knots_new.get(i)/t1);
-    }
+    return t1;
   }
   
-  void _unclampingCurve(BSpline originCur, float t1) {
+  float calcT2(BSpline originCur, PVector goal) {
+    int cpn = originCur.n;
+    int degree = originCur.degree;
+    ArrayList<Float> knots = originCur.knots;
+    float _predis = 0.0;
+    for(int i = degree; i < cpn; i++) {
+      PVector temp1 = originCur.BSplineExpression(knots.get(i+1));
+      PVector temp2 = originCur.BSplineExpression(knots.get(i));
+      _predis += dist(temp1.x, temp1.y, temp2.x, temp2.y);
+    }
+    float x = originCur.controlPoints.get(cpn-1).x;
+    float y = originCur.controlPoints.get(cpn-1).y;
+    float t1 = 1 + dist(goal.x, goal.y, x, y) / _predis;
+    return t1;
+  }
+  
+  void _unclampingCurve1(BSpline originCur, float t1) {
     ArrayList<Float> knots_origin = originCur.knots;
     ArrayList<PVector> controlPoints_origin = originCur.controlPoints;
     ArrayList<Float> u = new ArrayList<Float>();
@@ -50,10 +81,31 @@ class Extension {
     int n = originCur.controlPoints.size()-1;
     int p = originCur.degree;
     for(int j = 0; j <= n-p; j++) {
-      this.controlPoints_new.add(controlPoints_origin.get(j).copy());
+      this.controlPoints_new1.add(controlPoints_origin.get(j).copy());
     }
     for(int j = n-p+1; j <= n; j++) {
-      this.controlPoints_new.add(_unclampCtrlP(originCur, u, n, p, j, p-2));
+      this.controlPoints_new1.add(_unclampCtrlP(originCur, u, n, p, j, p-2));
+    }
+  }
+  
+  void _unclampingCurve2(BSpline originCur, float t2) {
+    ArrayList<Float> knots_origin = originCur.knots;
+    ArrayList<PVector> controlPoints_origin = originCur.controlPoints;
+    ArrayList<Float> u = new ArrayList<Float>();
+    for(float knot : knots_origin) {
+      u.add(knot);
+    }
+    u.set(knots_origin.size()-3, t2);
+    u.set(knots_origin.size()-2, t2);
+    u.set(knots_origin.size()-1, t2);
+    
+    int n = originCur.controlPoints.size()-1;
+    int p = originCur.degree;
+    for(int j = 0; j <= n-p; j++) {
+      this.controlPoints_new2.add(controlPoints_origin.get(j).copy());
+    }
+    for(int j = n-p+1; j <= n; j++) {
+      this.controlPoints_new2.add(_unclampCtrlP(originCur, u, n, p, j, p-2));
     }
   }
   
@@ -70,8 +122,14 @@ class Extension {
     }
   }
   
-  BSpline getNewCurve() {
-    BSpline newCur = new BSpline(this.controlPoints_new, degree, this.knots_new);
+  BSpline getNewCurve1() {
+    BSpline newCur = new BSpline(this.controlPoints_new1, degree, this.knots_new1);
+    println("this.knots_new1:", this.knots_new1);
+    return newCur;
+  }
+  BSpline getNewCurve2() {
+    BSpline newCur = new BSpline(this.controlPoints_new2, degree, this.knots_new2);
+    println("this.knots_new2:", this.knots_new2);
     return newCur;
   }
 }

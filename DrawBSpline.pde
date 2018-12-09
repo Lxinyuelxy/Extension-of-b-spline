@@ -1,11 +1,14 @@
- ArrayList<PVector> controlPoints;
-int pointsNum = 5;
+ArrayList<PVector> controlPoints;
+int pointsNum = 6;
 int degree = 3;
 BSpline b;
-BSpline b1;
-BSpline newCurve;
+
+BSpline newCurve1;
+BSpline newCurve2;
+
 Boolean ifDrawBSpline = false;
-Boolean ifDrawNewCurve = false;
+Boolean ifDrawNewCurve1 = false;
+Boolean ifDrawNewCurve2 = false;
 Boolean ifShowControlPolygon = true;
 
 void setup() {
@@ -37,21 +40,20 @@ void draw() {
   if (ifShowControlPolygon) {
     drawControlPolygon(controlPoints, color(255, 0, 0));
   }
-  if (ifDrawNewCurve == true) {
-    drawSpline(newCurve, color(0,255,0));
-    drawControlPolygon(newCurve.controlPoints, color(0, 255, 0));
-    
-    drawSpline(b1, color(0,0,255));
-    drawControlPolygon(b1.controlPoints, color(0, 0, 255));
+  if (ifDrawNewCurve1 && newCurve1 != null) {
+    drawPolyLine(newCurve1.getBsplineCurve_bSplineExpression(), color(0,255,0));
+    drawControlPolygon(newCurve1.controlPoints, color(0, 255, 0));   
   }
-  if (ifDrawBSpline == true) {
-    drawSpline(b, color(255,0,0));    //<>//
+  if (ifDrawNewCurve2 && newCurve2 != null) {
+    drawPolyLine(newCurve2.getBsplineCurve_bSplineExpression(), color(0,0,255));  
+    drawControlPolygon(newCurve2.controlPoints, color(0, 0, 255));
   }
-  
+  if (ifDrawBSpline) {
+    drawPolyLine(b.getBsplineCurve_bSplineExpression(), color(255,0,0));   //<>//
+  }
 }
 
-void drawSpline(BSpline spline, color c) {
-  ArrayList<PVector> points = spline.getBsplineCurve();
+void drawPolyLine(ArrayList<PVector> points, color c) {
   pushStyle();
   beginShape();
   stroke(c);
@@ -86,30 +88,27 @@ void drawControlPolygon(ArrayList<PVector> points, color c) {
 void keyPressed() {
   if (key == CODED) {
     if (keyCode == UP) ifShowControlPolygon = !ifShowControlPolygon;
+    if (keyCode == LEFT) ifDrawNewCurve1 = !ifDrawNewCurve1;
+    if (keyCode == RIGHT) ifDrawNewCurve2 = !ifDrawNewCurve2;
   }
 }
 
 void mouseClicked() {
   if (controlPoints.size() < pointsNum) {
-    controlPoints.add(new PVector(mouseX, mouseY));
+    PVector p = new PVector(mouseX, mouseY);
+    controlPoints.add(p);
     if (controlPoints.size() == pointsNum) {
       b = new BSpline(controlPoints, degree, generatesClampedKnots(pointsNum, degree)); 
-      
       ifDrawBSpline = true;
     } 
   }
   else {
     PVector newp = new PVector(mouseX, mouseY);
     Extension ext = new Extension(b, newp);
-    newCurve = ext.getNewCurve();
-    ifDrawNewCurve = true;
-    
-    ArrayList<PVector> points = new ArrayList<PVector>();
-    for(PVector p : controlPoints) {
-      points.add(p.copy());
-    }
-    points.add(newp);
-    b1 = new BSpline(points, degree, generatesClampedKnots(pointsNum+1, degree)); 
+    newCurve1 = ext.getNewCurve1();
+    newCurve2 = ext.getNewCurve2();
+    ifDrawNewCurve1 = true;
+    ifDrawNewCurve2 = true;
   }
 }
 
