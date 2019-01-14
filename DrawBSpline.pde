@@ -3,12 +3,10 @@ int pointsNum = 6;
 int degree = 3;
 BSpline b;
 
-BSpline newCurve1;
-BSpline newCurve2;
+BSpline newCurve;
 
 Boolean ifDrawBSpline = false;
-Boolean ifDrawNewCurve1 = false;
-Boolean ifDrawNewCurve2 = false;
+Boolean ifDrawNewCurve = false;
 Boolean ifShowControlPolygon = true;
 
 void setup() {
@@ -21,16 +19,13 @@ void draw() {
   if (ifShowControlPolygon) {
     drawControlPolygon(controlPoints, color(255, 0, 0));
   }
-  if (ifDrawNewCurve1 && newCurve1 != null) {
-    drawPolyLine(newCurve1.getBsplineCurve_bSplineExpression(), color(0,255,0));
-    drawControlPolygon(newCurve1.controlPoints, color(0, 255, 0));   
-  }
-  if (ifDrawNewCurve2 && newCurve2 != null) {
-    drawPolyLine(newCurve2.getBsplineCurve_bSplineExpression(), color(0,0,255));  
-    drawControlPolygon(newCurve2.controlPoints, color(0, 0, 255));
+  if (ifDrawNewCurve && newCurve != null) {
+    drawPolyLine(newCurve.getBsplineCurve_bSplineExpression(), color(0,255,0));
+    drawControlPolygon(newCurve.controlPoints, color(0, 255, 0));   
   }
   if (ifDrawBSpline) {
-    drawPolyLine(b.getBsplineCurve_bSplineExpression(), color(255,0,0));   //<>//
+    drawPolyLine(b.getBsplineCurve_deBoorCox(), color(0,255,0));
+    drawPolyLine(b.getBsplineCurve_bSplineExpression(), color(255,0,0));      //<>//
   }
 }
 
@@ -69,8 +64,7 @@ void drawControlPolygon(ArrayList<PVector> points, color c) {
 void keyPressed() {
   if (key == CODED) {
     if (keyCode == UP) ifShowControlPolygon = !ifShowControlPolygon;
-    if (keyCode == LEFT) ifDrawNewCurve1 = !ifDrawNewCurve1;
-    if (keyCode == RIGHT) ifDrawNewCurve2 = !ifDrawNewCurve2;
+    if (keyCode == LEFT) ifDrawNewCurve = !ifDrawNewCurve;
   }
 }
 
@@ -86,10 +80,8 @@ void mouseClicked() {
   else {
     PVector newp = new PVector(mouseX, mouseY);
     Extension ext = new Extension(b, newp);
-    newCurve1 = ext.getNewCurve1();
-    newCurve2 = ext.getNewCurve2();
-    ifDrawNewCurve1 = true;
-    ifDrawNewCurve2 = true;
+    newCurve = ext.getNewCurve();
+    ifDrawNewCurve = true;
   }
 }
 
