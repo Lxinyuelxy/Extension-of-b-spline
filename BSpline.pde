@@ -77,10 +77,10 @@ class BSpline {
   }
   
   PVector BSplineExpression(float t) {
-    PVector res = new PVector();
+    PVector res = new PVector(0.0, 0.0);
     for(int i = 0; i < n; i++) {
       PVector p = this.controlPoints.get(i).copy();
-      res = PVector.add(res, PVector.mult(p, basisFunc(i, this.degree, t)));
+      res.add(PVector.mult(p, basisFunc(i, this.degree, t)));
     }
     return res;
   }
