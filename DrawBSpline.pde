@@ -1,8 +1,9 @@
 ArrayList<PVector> controlPoints;
+ArrayList<PVector> targetPoints;
 int pointsNum = 6;
 int degree = 3;
-BSpline b;
 
+BSpline b;
 BSpline newCurve;
 
 Boolean ifDrawBSpline = false;
@@ -11,7 +12,9 @@ Boolean ifShowControlPolygon = true;
 
 void setup() {
   size(1400, 800);
+  
   controlPoints = new ArrayList<PVector>();
+  targetPoints = new ArrayList<PVector>();
 }
 
 void draw() {
@@ -20,11 +23,10 @@ void draw() {
     drawControlPolygon(controlPoints, color(255, 0, 0));
   }
   if (ifDrawNewCurve && newCurve != null) {
-    drawPolyLine(newCurve.getBsplineCurve_bSplineExpression(), color(0,255,0));
+    drawPolyLine(newCurve.getBsplineCurve_deBoorCox(), color(0,255,0));
     drawControlPolygon(newCurve.controlPoints, color(0, 255, 0));   
   }
   if (ifDrawBSpline) {
-    drawPolyLine(b.getBsplineCurve_deBoorCox(), color(0,255,0));
     drawPolyLine(b.getBsplineCurve_bSplineExpression(), color(255,0,0));      //<>//
   }
 }
@@ -64,7 +66,13 @@ void drawControlPolygon(ArrayList<PVector> points, color c) {
 void keyPressed() {
   if (key == CODED) {
     if (keyCode == UP) ifShowControlPolygon = !ifShowControlPolygon;
-    if (keyCode == LEFT) ifDrawNewCurve = !ifDrawNewCurve;
+    else if (keyCode == LEFT) ifDrawNewCurve = !ifDrawNewCurve;  
+  }
+  
+  if (key == 'e') {
+    Extension ext = new Extension(b, targetPoints);
+    newCurve = ext.getNewCurve();
+    ifDrawNewCurve = true;
   }
 }
 
@@ -73,15 +81,16 @@ void mouseClicked() {
     PVector p = new PVector(mouseX, mouseY);
     controlPoints.add(p);
     if (controlPoints.size() == pointsNum) {
+      println("controlPoints.size(): ", controlPoints.size());
+      println("pointsNum: ", pointsNum);
+      println("degree: ", degree);
       b = new BSpline(controlPoints, degree, generatesClampedKnots(pointsNum, degree)); 
       ifDrawBSpline = true;
     } 
   }
   else {
-    PVector newp = new PVector(mouseX, mouseY);
-    Extension ext = new Extension(b, newp);
-    newCurve = ext.getNewCurve();
-    ifDrawNewCurve = true;
+    PVector target = new PVector(mouseX, mouseY);
+    targetPoints.add(target);
   }
 }
 
