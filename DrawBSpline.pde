@@ -24,7 +24,10 @@ void draw() {
   }
   if (ifDrawNewCurve && newCurve != null) {
     drawPolyLine(newCurve.getBsplineCurve_deBoorCox(), color(0,255,0));
-    drawControlPolygon(newCurve.controlPoints, color(0, 255, 0));   
+    drawControlPolygon(newCurve.controlPoints, color(0, 255, 0));
+    for (PVector p : targetPoints) {
+      ellipse(p.x, p.y, 15, 15);
+    }
   }
   if (ifDrawBSpline) {
     drawPolyLine(b.getBsplineCurve_bSplineExpression(), color(255,0,0));      //<>//
@@ -68,10 +71,9 @@ void keyPressed() {
     if (keyCode == UP) ifShowControlPolygon = !ifShowControlPolygon;
     else if (keyCode == LEFT) ifDrawNewCurve = !ifDrawNewCurve;  
   }
-  
   if (key == 'e') {
     Extension ext = new Extension(b, targetPoints);
-    newCurve = ext.getNewCurve();
+    newCurve = ext.getNewCurve_1();
     ifDrawNewCurve = true;
   }
 }
@@ -81,9 +83,6 @@ void mouseClicked() {
     PVector p = new PVector(mouseX, mouseY);
     controlPoints.add(p);
     if (controlPoints.size() == pointsNum) {
-      println("controlPoints.size(): ", controlPoints.size());
-      println("pointsNum: ", pointsNum);
-      println("degree: ", degree);
       b = new BSpline(controlPoints, degree, generatesClampedKnots(pointsNum, degree)); 
       ifDrawBSpline = true;
     } 
