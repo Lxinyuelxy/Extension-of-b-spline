@@ -25,12 +25,10 @@ void draw() {
   if (ifDrawNewCurve && newCurve != null) {
     drawPolyLine(newCurve.getBsplineCurve_deBoorCox(), color(0,255,0));
     drawControlPolygon(newCurve.controlPoints, color(0, 255, 0));
-    for (PVector p : targetPoints) {
-      ellipse(p.x, p.y, 15, 15);
-    }
   }
   if (ifDrawBSpline) {
-    drawPolyLine(b.getBsplineCurve_bSplineExpression(), color(255,0,0));      //<>//
+    drawPolyLine(b.getBsplineCurve_bSplineExpression(), color(255,0,0));    //<>//
+    if(mousePressed == true) ellipse(mouseX, mouseY, 15, 15);
   }
 }
 
