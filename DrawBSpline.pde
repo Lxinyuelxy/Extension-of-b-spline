@@ -30,6 +30,14 @@ void draw() {
     drawPolyLine(b.getBsplineCurve_bSplineExpression(), color(255,0,0));    //<>//
     if(mousePressed == true) ellipse(mouseX, mouseY, 15, 15);
   }
+  if(targetPoints != null) {
+    for (PVector p : targetPoints) {
+      pushStyle();
+      fill(color(0, 0, 0));
+      ellipse(p.x, p.y, 15, 15);
+      popStyle();
+    }
+  }
 }
 
 void drawPolyLine(ArrayList<PVector> points, color c) {
@@ -71,7 +79,7 @@ void keyPressed() {
   }
   if (key == 'e') {
     Extension ext = new Extension(b, targetPoints);
-    newCurve = ext.getNewCurve_1();
+    newCurve = ext.getNewCurve_2();
     ifDrawNewCurve = true;
   }
 }
