@@ -22,14 +22,15 @@ void draw() {
   if (ifShowControlPolygon) {
     drawControlPolygon(controlPoints, color(255, 0, 0));
   }
+  if (ifDrawBSpline) {
+    drawPolyLine(b.getBsplineCurve_bSplineExpression(), color(255,0,0));   
+  }
   if (ifDrawNewCurve && newCurve != null) {
     drawPolyLine(newCurve.getBsplineCurve_deBoorCox(), color(0,255,0));
     drawControlPolygon(newCurve.controlPoints, color(0, 255, 0));
   }
-  if (ifDrawBSpline) {
-    drawPolyLine(b.getBsplineCurve_bSplineExpression(), color(255,0,0));    //<>//
-    if(mousePressed == true) ellipse(mouseX, mouseY, 15, 15);
-  }
+
+   //<>//
   if(targetPoints != null) {
     for (PVector p : targetPoints) {
       pushStyle();

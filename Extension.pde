@@ -42,27 +42,56 @@ class Extension {
     ArrayList<Float> knots_new = _unclampingKnotsVec(originCur, originCur.knots, controlPoints.get(cpn), targetPoints.get(0));
     for(int i =1; i < targetPoints.size(); i++) {
       knots_new = _unclampingKnotsVec(originCur, knots_new, targetPoints.get(i-1), targetPoints.get(i));
-    }
-    
+    }  
     ArrayList<PVector> controlPs_new = _unclampingControlPoints(originCur, knots_new);
     
-    for(int i = 0; i < targetPoints.size(); i++) {
+    int i;
+    for(i = 0; i < targetPoints.size()-1; i++) {
       knots_new = extendKnotsVec(knots_new);
-      if (i == targetPoints.size()-1) {
-        controlPs_new.add(targetPoints.get(i));
-      }
-      else {
-        PVector controlP = inverseDeBoor(0, controlPs_new.size(), knots_new.get(controlPs_new.size()+1), controlPs_new, knots_new, targetPoints.get(i));
-        controlPs_new.add(controlP);
-      } 
+      println("------initial----------");
+      println("r = ", 0, "i = ", controlPs_new.size());
+      float t = knots_new.get(controlPs_new.size()+1);
+      //int j = degree;
+      //while (t > knots_new.get(j+1)) j++;
+      //println("j = ", j);
+      PVector controlP = inverseDeBoor(0, controlPs_new.size(), t, controlPs_new, knots_new, targetPoints.get(i));
+      controlPs_new.add(controlP);
     }
+    knots_new = extendKnotsVec(knots_new);
+    controlPs_new.add(targetPoints.get(i));
     return new BSpline(controlPs_new, degree, normalizeKnotsVec(knots_new));
   }
   
+  ArrayList<PVector> test() {
+    ArrayList<PVector> points = originCur.controlPoints;
+    ArrayList<Float> knots = originCur.knots;
+    ArrayList<PVector> cur = new ArrayList<PVector>();
+    
+    float low = knots.get(degree);
+    float high = knots.get(points.size());
+    int j = degree;
+    float deltat = (high - low) / 200.0;
+    for (float t = low; t <= high; t += deltat) {
+      while (t > knots.get(j+1)) j++;
+      
+      cur.add(deBoor(degree, j-degree, t, points, knots));
+    }
+    return cur;
+  }
+
   PVector inverseDeBoor(int r, int i, float t, ArrayList<PVector> points, ArrayList<Float> knots, PVector target) {
-    if (r == k-1 && i == originCur.controlPoints.size()-k+1)
+    println("points.size(): ", points.size());
+    if (r == 0 && i != points.size()) {
+      println("--------origin--------");
+      println("r = ", r, "i = ", i);
+      return points.get(i);
+    }
+    if (r == k-1 && i == points.size()-k+1) {
+      println("--------target--------");
+      println("r = ", r, "i = ", i);
       return target;
-    else if(i < originCur.controlPoints.size()-k+1) {
+    }
+    else if(i < points.size()-k+1) {
       return null;
     }
     else {
@@ -70,20 +99,27 @@ class Extension {
       float temp2 = (knots.get(i+k) - t) / (t - knots.get(i+r));
       PVector p1 = inverseDeBoor(r+1, i-1, t, points, knots, target);
       PVector p2 = inverseDeBoor(r, i-1, t, points, knots, target);
-      if (p1 == null || p2 == null)
-        return deBoor(r, i, t, points, knots);
-      else
+      if (p1 == null || p2 == null) {
+        
+        return deBoor(r, i, t, points, knots);    
+      }  
+      else {
+        println("--------inverseDeBoor--------");
+        println("r = ", r, "i = ", i);
         return PVector.sub(PVector.mult(p1, temp1), PVector.mult(p2, temp2));
+      }  
     }  
   }
   
   PVector deBoor(int r, int i, float t, ArrayList<PVector> points, ArrayList<Float> knots) {
+    //println("--------deboor--------");
+    //println("r = ", r, "i = ", i);
     if (r == 0) {
       return points.get(i);
     }
     else {   
       float temp1 = (knots.get(i+k) - t) / (knots.get(i+k) - knots.get(i+r));
-      float temp2 = (t - knots.get(i+r)) / (knots.get(i+k) - knots.get(i+1));
+      float temp2 = (t - knots.get(i+r)) / (knots.get(i+k) - knots.get(i+r));
       return PVector.add(PVector.mult(deBoor(r-1, i, t, points, knots), temp1), PVector.mult(deBoor(r-1, i+1, t, points, knots), temp2));
     }
   }
