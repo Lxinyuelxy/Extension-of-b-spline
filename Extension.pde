@@ -1,5 +1,16 @@
 class Extension {
-  
+  /*
+   * This class provides 2 methods when extend a b-spline curve to multiple target points
+   *
+   * getNewCurve_1: Use unclamping algorithm to unclamp origin b-spline curve, then make first target point as the last control point
+   * to generate a new b-spline curve.Use this b-spline and the second target point to generate another b-spline. Loop this step 
+   * until extend to the last target point.
+   * 
+   * getNewCurve_2: Unclamp origin b-spline curve. Then make the first target point as the last point of a new unclamped b-spline curve
+   * and use inverse de Boor algorithm to calculate the last control point.Loop this step until solved the control point of the penultimate
+   * target point.Finally, make the last target point as control point directly.
+   *
+   */
   ArrayList<PVector> targetPoints;
   BSpline originCur;
   int k;
@@ -8,7 +19,7 @@ class Extension {
     this.originCur = originCur;
     this.targetPoints = targetPoints; 
     this.k = originCur.degree + 1;
-    if (targetPoints.size() > 3) {
+    if (targetPoints.size() > degree) {
       throw new IllegalArgumentException("the target points are too many.");
     } 
   }
@@ -39,12 +50,14 @@ class Extension {
     ArrayList<PVector> controlPoints = originCur.controlPoints;
     int cpn = controlPoints.size()-1;
     
+    // unclamp origin b-spline curve.
     ArrayList<Float> knots_new = _unclampingKnotsVec(originCur, originCur.knots, controlPoints.get(cpn), targetPoints.get(0));
     for(int i =1; i < targetPoints.size(); i++) {
       knots_new = _unclampingKnotsVec(originCur, knots_new, targetPoints.get(i-1), targetPoints.get(i));
     }  
     ArrayList<PVector> controlPs_new = _unclampingControlPoints(originCur, knots_new);
     
+    // inverse de Boor alg calculate intermediate control points.
     int i;
     for(i = 0; i < targetPoints.size()-1; i++) {
       knots_new = extendKnotsVec(knots_new);
@@ -52,6 +65,8 @@ class Extension {
       PVector controlP = inverseDeBoor(0, controlPs_new.size(), t, controlPs_new, knots_new, targetPoints.get(i));
       controlPs_new.add(controlP);
     }
+    
+    // make the last target point as the last control point of final extended b-spline.
     knots_new = extendKnotsVec(knots_new);
     controlPs_new.add(targetPoints.get(i));
     return new BSpline(controlPs_new, degree, normalizeKnotsVec(knots_new));
@@ -100,8 +115,7 @@ class Extension {
     while(knots_origin.get(index).equals(knots_origin.get(index-1))) 
       index--;
     float t = calcT2(cur, Pn, R, knots_origin.get(index));
-    
-    // according to new calculated knots unclamping controlpoints
+
     for(float knot : knots_origin) {
       knots_new.add(knot);
     }

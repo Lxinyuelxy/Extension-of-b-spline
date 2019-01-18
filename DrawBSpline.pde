@@ -12,8 +12,7 @@ Boolean ifDrawextendedCur_1 = false;
 Boolean ifDrawextendedCur_2 = false;
 
 void setup() {
-  size(1400, 800);
-  
+  size(1400, 800);  
   controlPoints = new ArrayList<PVector>();
   targetPoints = new ArrayList<PVector>();
 }
@@ -37,7 +36,7 @@ void draw() {
     for (PVector p : targetPoints) {
       pushStyle();
       fill(color(0, 0, 0));
-      ellipse(p.x, p.y, 15, 15);
+      ellipse(p.x, p.y, 10, 10);
       popStyle();
     }
   }
@@ -62,12 +61,12 @@ void drawControlPolygon(ArrayList<PVector> points, color c) {
   for (PVector p: points) {
     pushStyle();
     if (checkIfDragged(p)) {
-      fill(color(255, 0, 0));
-      ellipse(p.x, p.y, 15, 15);
+      noFill();
+      ellipse(p.x, p.y, 20, 20);
     } 
     else {
-      fill(color(0, 0, 0));
-      ellipse(p.x, p.y, 10, 10);
+      noFill();
+      ellipse(p.x, p.y, 15, 15);
     }
     popStyle();
     vertex(p.x, p.y);
@@ -100,6 +99,11 @@ void mouseClicked() {
     } 
   }
   else {
+    if (ifDrawextendedCur_1 == true) {
+      targetPoints = new ArrayList<PVector>();
+      ifDrawextendedCur_1 = false;
+      ifDrawextendedCur_2 = false;
+    }
     PVector target = new PVector(mouseX, mouseY);
     targetPoints.add(target);
   }

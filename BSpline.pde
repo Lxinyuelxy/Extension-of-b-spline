@@ -1,4 +1,12 @@
 class BSpline {
+  /*
+   * This class provides 2 methods to generate a b-spline
+   *
+   * 1: use de Boor algorithm to calculate points on b-spline curve
+   *
+   * 2: use the defination of b-spline to calculate points on b-spline curve
+   *
+   */
   ArrayList<PVector> controlPoints;
   ArrayList<Float> knots;
   ArrayList<Float> weights;
@@ -18,11 +26,7 @@ class BSpline {
     }    
   }
   
-  BSpline (ArrayList<PVector> controlPoints, int degree, ArrayList<Float> knots, ArrayList<Float> weights) {  
-  }
-  
-  ArrayList<PVector> getBsplineCurve_deBoorCox() {
-    
+  ArrayList<PVector> getBsplineCurve_deBoorCox() {    
     ArrayList<PVector> points = new ArrayList<PVector>();
     
     float low = this.knots.get(this.degree);
@@ -38,12 +42,11 @@ class BSpline {
     return points;
   }
   
-  /**
-  use deBoor-Cox algorithm to calculate P(t)
-  t is in [knots(j), knots(j+1)]
-  **/
+  /*
+   * use deBoor-Cox algorithm to calculate P(t)
+   * t is in [knots(j), knots(j+1)]
+   */
   PVector deBoorCox (float t, int j) {
-
     PVector[] V = new PVector[this.n];
     int index = 0;
     for (PVector p : this.controlPoints) {
@@ -61,8 +64,7 @@ class BSpline {
     return V[i];
   }
   
-  ArrayList<PVector> getBsplineCurve_bSplineExpression() {
-    
+  ArrayList<PVector> getBsplineCurve_bSplineExpression() {   
     ArrayList<PVector> points = new ArrayList<PVector>();
     
     float low = this.knots.get(this.degree);
@@ -105,4 +107,5 @@ class BSpline {
       return temp1*basisFunc(i, degree-1, t) + temp2*basisFunc(i+1, degree-1, t);
     }
   }
+  
 }
