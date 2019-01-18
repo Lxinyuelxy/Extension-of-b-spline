@@ -4,11 +4,12 @@ int pointsNum = 6;
 int degree = 3;
 
 BSpline b;
-BSpline newCurve;
+BSpline extendedCur_1;
+BSpline extendedCur_2;
 
 Boolean ifDrawBSpline = false;
-Boolean ifDrawNewCurve = false;
-Boolean ifShowControlPolygon = true;
+Boolean ifDrawextendedCur_1 = false;
+Boolean ifDrawextendedCur_2 = false;
 
 void setup() {
   size(1400, 800);
@@ -19,18 +20,19 @@ void setup() {
 
 void draw() {
   background(255);
-  if (ifShowControlPolygon) {
-    drawControlPolygon(controlPoints, color(255, 0, 0));
-  }
+  drawControlPolygon(controlPoints, color(255, 0, 0));
   if (ifDrawBSpline) {
-    drawPolyLine(b.getBsplineCurve_bSplineExpression(), color(255,0,0));   
+    drawPolyLine(b.getBsplineCurve_bSplineExpression(), color(255,0,0));  
   }
-  if (ifDrawNewCurve && newCurve != null) {
-    drawPolyLine(newCurve.getBsplineCurve_deBoorCox(), color(0,255,0));
-    drawControlPolygon(newCurve.controlPoints, color(0, 255, 0));
+  if (ifDrawextendedCur_1 && extendedCur_1 != null) {
+    drawPolyLine(extendedCur_1.getBsplineCurve_deBoorCox(), color(0,255,0));
+    drawControlPolygon(extendedCur_1.controlPoints, color(0, 255, 0));
   }
-
-   //<>//
+  if (ifDrawextendedCur_2 && extendedCur_2 != null) {
+    drawPolyLine(extendedCur_2.getBsplineCurve_deBoorCox(), color(0,0,255));
+    drawControlPolygon(extendedCur_2.controlPoints, color(0, 0, 255));
+  }
+ //<>//
   if(targetPoints != null) {
     for (PVector p : targetPoints) {
       pushStyle();
@@ -75,13 +77,16 @@ void drawControlPolygon(ArrayList<PVector> points, color c) {
 
 void keyPressed() {
   if (key == CODED) {
-    if (keyCode == UP) ifShowControlPolygon = !ifShowControlPolygon;
-    else if (keyCode == LEFT) ifDrawNewCurve = !ifDrawNewCurve;  
+    if (keyCode == UP) ifDrawBSpline = !ifDrawBSpline;
+    else if (keyCode == LEFT) ifDrawextendedCur_1 = !ifDrawextendedCur_1;
+    else if(keyCode == RIGHT) ifDrawextendedCur_2 = !ifDrawextendedCur_2;
   }
   if (key == 'e') {
     Extension ext = new Extension(b, targetPoints);
-    newCurve = ext.getNewCurve_2();
-    ifDrawNewCurve = true;
+    extendedCur_1 = ext.getNewCurve_1();
+    extendedCur_2 = ext.getNewCurve_2();
+    ifDrawextendedCur_1 = true;
+    ifDrawextendedCur_2 = true;
   }
 }
 
