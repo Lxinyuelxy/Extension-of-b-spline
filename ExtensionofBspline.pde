@@ -20,9 +20,6 @@ void setup() {
 void draw() {
   background(255);
   drawControlPolygon(controlPoints, color(255, 0, 0));
-  if (ifDrawBSpline) {
-    drawPolyLine(b.getBsplineCurve_bSplineExpression(), color(255,0,0));  
-  }
   if (ifDrawextendedCur_1 && extendedCur_1 != null) {
     drawPolyLine(extendedCur_1.getBsplineCurve_deBoorCox(), color(0,255,0));
     drawControlPolygon(extendedCur_1.controlPoints, color(0, 255, 0));
@@ -30,6 +27,9 @@ void draw() {
   if (ifDrawextendedCur_2 && extendedCur_2 != null) {
     drawPolyLine(extendedCur_2.getBsplineCurve_deBoorCox(), color(0,0,255));
     drawControlPolygon(extendedCur_2.controlPoints, color(0, 0, 255));
+  }
+  if (ifDrawBSpline) {
+    drawPolyLine(b.getBsplineCurve_bSplineExpression(), color(255,0,0));  
   }
  //<>//
   if(targetPoints != null) {
